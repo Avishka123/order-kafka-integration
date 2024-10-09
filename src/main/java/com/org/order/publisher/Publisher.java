@@ -31,17 +31,24 @@ public class Publisher {
 
     this.kafkaTemplate.send(this.topicName, String.valueOf(data.getId()), event);
 
-    log.info("Successfully published the order for (T: {}, ORD_ID: {}, E: {})",this.topicName, data.getId(), event);
+    log.info(
+        "Successfully published the order for (T: {}, ORD_ID: {}, E: {})",
+        this.topicName,
+        data.getId(),
+        event);
   }
 
-
-  public void publish(Order data,int partition) throws JsonProcessingException {
+  public void publish(Order data, int partition) throws JsonProcessingException {
 
     String event = this.mapper.writeValueAsString(data);
 
-    this.kafkaTemplate.send(this.topicName,partition,String.valueOf(data.getId()),event);
+    this.kafkaTemplate.send(this.topicName, partition, String.valueOf(data.getId()), event);
 
-    log.info("Successfully published the order for (T: {}, P: {}, ORD_ID: {}, E: {})",this.topicName,partition, data.getId(), event);
-
+    log.info(
+        "Successfully published the order for (T: {}, P: {}, ORD_ID: {}, E: {})",
+        this.topicName,
+        partition,
+        data.getId(),
+        event);
   }
 }
