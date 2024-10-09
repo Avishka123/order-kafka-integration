@@ -32,26 +32,23 @@ public class OrderController {
   }
 
   @PostMapping(path = "/{partition}/order")
-  public ResponseEntity<String> publishToPartition(@RequestBody Order request, @PathVariable int partition) {
+  public ResponseEntity<String> publishToPartition(
+      @RequestBody Order request, @PathVariable int partition) {
     try {
-      this.publisher.publish(request,partition);
+      this.publisher.publish(request, partition);
       return this.getOrderResponse(request.getId());
     } catch (JsonProcessingException e) {
       return this.getErrorResponse(request.getId(), e);
     }
   }
 
-  private  ResponseEntity<String> getOrderResponse(long orderId) {
+  private ResponseEntity<String> getOrderResponse(long orderId) {
     log.info("Published the order: {}", orderId);
     return new ResponseEntity<>("Successfully publish the order", HttpStatus.CREATED);
   }
 
-  private  ResponseEntity<String> getErrorResponse(long orderId, JsonProcessingException e) {
-    log.error(
-        "Failed to publish the order for (ORD_ID: {}, ERR: {})", orderId, e.getMessage());
+  private ResponseEntity<String> getErrorResponse(long orderId, JsonProcessingException e) {
+    log.error("Failed to publish the order for (ORD_ID: {}, ERR: {})", orderId, e.getMessage());
     return new ResponseEntity<>("Failed publish the order", HttpStatus.INTERNAL_SERVER_ERROR);
   }
-
-
-
 }
