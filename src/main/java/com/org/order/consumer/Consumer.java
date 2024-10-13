@@ -1,5 +1,6 @@
 package com.org.order.consumer;
 
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -7,8 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -20,7 +19,8 @@ public class Consumer implements ConsumerSeekAware {
   @Value("${seek.offset}")
   private long offset;
 
-  @KafkaListener(groupId = "${group-id}", topics = "${topic.name}")
+  //consume: concurrency attribute in Kafka allows for the creation of multiple listeners, each capable of handling incoming connections independently.
+  @KafkaListener(groupId = "${group-id}", topics = "${topic.name}", concurrency = "3")
   public void consume(ConsumerRecord<String, String> record) {
     log.info(
         "Consumed the order for (TP: {}, P: {}, OFF_SET: {}, K: {}, V: {})",
@@ -32,13 +32,14 @@ public class Consumer implements ConsumerSeekAware {
   }
 
   @Override
-  public void onPartitionsAssigned(Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
+  public void onPartitionsAssigned(
+      Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
 
-    if (offsetEnable){
-      assignments.forEach((tp,off)->{
-        callback.seek(tp.topic(),tp.partition(),offset);
-      });
+    if (offsetEnable) {
+      assignments.forEach(
+          (tp, off) -> {
+            callback.seek(tp.topic(), tp.partition(), offset);
+          });
     }
-
   }
 }
